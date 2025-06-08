@@ -1,156 +1,141 @@
 .carnet-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.carnet-content {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    max-width: 1100px; /* Limits the overall width of the card */
+    background: white;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.carnet-left, .carnet-right {
+    padding: 30px;
+    width: 50%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* --- Image Specific Styles --- */
+
+.top-images-container {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center items horizontally */
+    gap: 2rem;
+    flex-wrap: nowrap; /* Prevent wrapping */
+}
+
+/* SENA Logo */
+.image1 {
+    display: flex; /* Helps in centering the image if needed */
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    background-color: #f5f5f5;
-    padding: 20px;
-    perspective: 1000px;
-    gap: 30px;
 }
 
-/* Flip card container */
-.flip-card {
-    width: 100%;
-    max-width: 400px;
-    height: 600px;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.6s;
-    cursor: pointer;
+.image1 img {
+    width: 100%; /* Make the image fill its container */
+    max-width: 150px; /* Set a maximum width for the logo to prevent it from getting too big */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Ensures max-width works consistently */
 }
 
-.flip-card.flipped {
-    transform: rotateY(180deg);
-}
-
-.flip-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-}
-
-/* Position the front and back side */
-.flip-card-front, .flip-card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-}
-
-/* Style the back side */
-.flip-card-back {
-    transform: rotateY(180deg);
-}
-
-.carnet-card {
-    width: 100%;
-    height: 100%;
-    background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.carnet-header {
-    background-color: #39A900;
-    color: white;
-    padding: 20px;
-    text-align: center;
-    flex-shrink: 0;
-}
-
-.carnet-header h1 {
-    margin: 0;
-    font-size: 1.8rem;
-    font-weight: 600;
-}
-
-.carnet-body-front, .carnet-body-back {
-    padding: 1cap;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
+/* User Photo */
 .photo-container {
-    width: 30%;
-    height: 30%;
-    overflow: hidden;
-    left: 30%;
-    background-color: #f70000;
+    width: 30%; /* Fixed width for the photo container */
+    height: auto; /* Fixed height for the photo container */
+    overflow: hidden; /* Hide parts of the image outside the circle */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0; /* Prevent it from shrinking on smaller screens */
+    border: none !important;
+
 }
 
-.user-photo {
-    width: 50%;
-    height: 50%;
-    object-fit: cover;
+.user-photo-inline {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cover the container, cropping if necessary */
+    display: block; /* Ensures it behaves like a block element */
 }
 
+/* QR Code */
+.qr-section {
+    text-align: center;
+}
+
+.qr-code {
+    width: 80%; /* Make it take 80% of its parent's width */
+    max-width: 180px; /* Set a maximum width to prevent it from being too large */
+    height: auto; /* Maintain aspect ratio */
+    display: block; /* Important for margin: auto to work */
+    margin: 0 auto; /* Center the QR code horizontally */
+}
+
+/* --- Rest of your existing styles --- */
+
+.role-label {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 5%;
+}
+
+.name, .last-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.document, .rh, .regional {
+    font-size: 1rem;
+    margin: 5% 0;
+    font-weight: bold;
+}
+
+.regional {
+    text-align: center;
+}
+
+.centro {
+    font-size: 0.9rem;
+    color: green;
+    text-align: center;
+}
+
+.carnet-right .paragraph {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 5%;
+}
+
+.paragraph{
+    text-align: justify;
+}
 
 .info-row {
     display: flex;
-    margin-bottom: 12px;
+    gap: 1%;
     font-size: 1rem;
-    align-items: baseline;
-
 }
 
 .info-label {
     font-weight: bold;
-    width: 140px;
-    text-align: left;
-    color: #333;
 }
 
-.info-value {
-    flex-grow: 1;
-    text-align: left;
-    color: #555;
-}
-
-.carnet-footer {
-    background-color: #f8f9fa;
-    padding: 15px;
-    text-align: center;
-    font-size: 1rem;
-    color: #6c757d;
-    flex-shrink: 0;
-    border-top: 1px solid #eee;
-}
-
-/* Back side styles */
-.carnet-body-back {
-    justify-content: space-between;
-}
-
-.qr-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 25px 0;
-}
-
-.qr-code {
-    width: 180px;
-    height: 180px;
-    border: 1px solid #eee;
-    padding: 5px;
-    background: white;
-}
-
-/* Logout button container */
 .logout-container {
-    width: 100%;
-    max-width: 400px;
-    display: flex;
-    justify-content: center;
+    margin-top: 1%;
 }
 
 .btn-Exit {
@@ -163,55 +148,78 @@
     font-size: 1.1rem;
     transition: background-color 0.3s;
     font-weight: 500;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-Exit:hover {
     background: #2d8700;
 }
 
-/* Responsive adjustments */
+.linea-separador {
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 5%;
+  border-bottom: 2px solid #39A900; 
+  padding-bottom: 2px; 
+}
+
+.linea-separador2 {
+    font-weight: bold;
+    font-size: 1rem;
+    border-bottom: 2px solid #39A900; 
+    width: 6%;
+}
+
+
+
+/* --- Responsive adjustments --- */
 @media (max-width: 768px) {
-    .flip-card {
-        max-width: 350px;
-        height: 550px;
+    .carnet-content {
+        flex-direction: column;
     }
-    
-    .info-label {
-        width: 130px;
+
+    .carnet-left, .carnet-right {
+        width: 100%;
+        padding: 20px; /* Adjust padding for smaller screens */
     }
-    
-    .logout-container {
-        max-width: 350px;
+
+    .top-images-container {
+        /* Keep them in a row, but allow wrapping if necessary */
+        flex-direction: row; /* Keep images side-by-side */
+        flex-wrap: wrap; /* Allow wrapping if space is extremely tight */
+        justify-content: center; /* Center them horizontally */
+        gap: 1rem; /* Slightly reduced gap for smaller screens */
+    }
+
+    .photo-container {
+        width: 90px;
+        height: 90px;
+    }
+
+    .image1 img {
+        max-width: 100px; /* Adjust max-width for logo on small screens */
+    }
+
+    .qr-code {
+        width: 100px; /* Smaller QR code on mobile */
+        height: 100px;
+    }
+
+    .name, .last-name {
+        font-size: 1.1rem; /* Slightly smaller text on mobile */
+    }
+
+    .document, .rh, .regional, .centro, .info-row, .carnet-right .paragraph {
+        font-size: 0.9rem; /* Adjust general text size */
     }
 }
 
-@media (max-width: 576px) {
-    .flip-card {
-        max-width: 320px;
-        height: 500px;
+@media (max-width: 480px) {
+    .carnet-left, .carnet-right {
+        padding: 15px; /* Even less padding on very small screens */
     }
-    
-    .carnet-header h1 {
-        font-size: 1.5rem;
-    }
-    
-    .info-row {
-        font-size: 0.9rem;
-    }
-    
-    .photo-container {
-        width: 130px;
-        height: 160px;
-    }
-    
-    .qr-code {
-        width: 150px;
-        height: 150px;
-    }
-    
+
     .btn-Exit {
-        padding: 10px 25px;
+        padding: 10px 20px;
         font-size: 1rem;
     }
 }

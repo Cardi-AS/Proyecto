@@ -126,9 +126,7 @@ const Login = ({ onLogin }) => {
                     <img src={image1} alt="Logo" className="login-logo" />
                 </div>
             </div>
-            <div className="cuadro-inferior2">
-                <div className="recuadro"></div>
-            </div>
+           
         </div>
     );
 };

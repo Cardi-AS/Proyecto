@@ -1,178 +1,111 @@
-import './index.css';
-import { useLocation } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import "./index.css";
+import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import image1 from "../../image/LogoSENA.png";
 
-const CarnetInstructor = () => {
-    const location = useLocation();
-    const usuarioInfo = location.state?.user;
-    console.log(usuarioInfo.Nombre);
+const CarnetAprendiz = () => {
+  const location = useLocation();
+  const usuarioInfo = location.state?.user;
+  const [imageData, setImageData] = useState(null);
+  const [imageDataQR, setImageDataQR] = useState(null);
+  const navigate = useNavigate();
 
-    const [imageData, setImageData] = useState(null);
+  const fechaObj = new Date(usuarioInfo.Fecha_Expiracion);
+  const fechaFormateada = fechaObj.toISOString().split("T")[0];
 
-    const fechaObj = new Date(usuarioInfo.Fecha_Expiracion); // Convertir string a Date
-    const fechaFormateada = fechaObj.toISOString().split('T')[0]; 
-    
+  useEffect(() => {
+    fetch(`http://127.0.0.1:8000/ver_foto/${usuarioInfo.Id_Usuario}`)
+      .then((response) => response.blob())
+      .then((blob) => setImageData(URL.createObjectURL(blob)))
+      .catch((error) => console.error("Error al obtener la imagen", error));
 
-    useEffect(() => {
-        // Hacer la solicitud GET para obtener la imagen con el ID usando fetch
-        fetch(`http://127.0.0.1:8000/ver_foto/${usuarioInfo.Id_Usuario}`)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Error al obtener la imagen');
-            }
-            return response.blob(); // Convertir la respuesta a blob
-          })
-          .then(blob => {
-            // Crear una URL para el archivo binario
-            const imageUrl = URL.createObjectURL(blob);
-            setImageData(imageUrl); // Guardar la URL generada en el estado
-          })
-          .catch(error => console.error('Error al obtener la imagen', error));
-      }, [usuarioInfo.Id_Usuario]);
+    fetch(`http://127.0.0.1:8000/ver_qr/${usuarioInfo.Id_Usuario}`)
+      .then((response) => response.blob())
+      .then((blob) => setImageDataQR(URL.createObjectURL(blob)))
+      .catch((error) => console.error("Error al obtener la imagen QR", error));
+  }, [usuarioInfo.Id_Usuario]);
 
-      const [imageDataQR, setImageDataQR] = useState(null);
-      useEffect(() => {
-        // Hacer la solicitud GET para obtener la imagen con el ID usando fetch
-        fetch(`http://127.0.0.1:8000/ver_qr/${usuarioInfo.Id_Usuario}`)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Error al obtener la imagen');
-            }
-            return response.blob(); // Convertir la respuesta a blob
-          })
-          .then(blob => {
-            // Crear una URL para el archivo binario
-            const imageUrl = URL.createObjectURL(blob);
-            setImageDataQR(imageUrl); // Guardar la URL generada en el estado
-          })
-          .catch(error => console.error('Error al obtener la imagen', error));
-      }, [usuarioInfo.Id_Usuario]);
+  const handleLogout = () => {
+    navigate("/");
+  };
 
-    const [formData, setFormData] = useState({
-        nombre: '',
-        apellido: '',
-        codigo: '',
-        programa: '',
-        rol: '',
-        fechaNacimiento: '',
-        foto: null
-    });
+  return (
+    <div className="carnet-container">
+      <div className="carnet-content">
+        <div className="carnet-left">
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-        ...prev,
-        [name]: value
-        }));
-    };
+          <div className="top-images-container">
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setFormData(prev => ({
-            ...prev,
-            foto: reader.result
-            }));
-        };
-        reader.readAsDataURL(file);
-        }
-    };
-
-    const navigate = useNavigate();
-    const handleLogout = () => {
-        navigate('/');
-    };
-
-    return (
-        <div className="carnet-container">
-        <div className="carnet-card">
-            <div className="carnet-header">
-            <h2>Carnet Institucional</h2>
+            <div className="image1">
+            <img src={image1} alt="Logo SENA" className="image1" />
             </div>
-            
-            <div className="carnet-body">
-            <div className="row">
-                <div className="col-md-4">
-                <div className="photo-container">
-                    <div>
-                        {imageData ? (
-                            <img src={imageData} alt="Imagen del usuario" style={{ width: '100%', height: 'auto' }} />
-                        ) : (
-                            <p>Cargando imagen...</p>
-                        )}
-                    </div>
-                </div>
-                </div>
 
-                <div className="col-md-6">
-                <div className="form-group">
-                    <label>Rol: {usuarioInfo.Rol}</label>
-                </div>
-                </div>
-                
-                <div className="col-md-8">
-                <div className="form-group">
-                    <label>Nombres: {usuarioInfo.Nombre}</label>
-                </div>
-                
-                <div className="form-group">
-                    <label>Apellidos: {usuarioInfo.Apellido} </label>
-                </div>
-                <div className="form-group">
-                    <label>Tipo de identificacion: {usuarioInfo.Tipo_Identificacion} </label>
-                </div>
-                <div className="form-group">
-                    <label>Numero de identificacion: {usuarioInfo.Numero_Identificacion} </label>
-                </div>
-                <div className="form-group">
-                    <label>RH: {usuarioInfo.RH} </label>
-                </div>
-                <div className="form-group">
-                    <label>Ficha: {usuarioInfo.ficha} </label>
-                </div>
-                <div className="form-group">
-                    <label>Fecha expiracion: {fechaFormateada} </label>
-                </div>
-                <div className="row mt-3">
-                <div className="col-md-6">
-                <div className="form-group">
-                    <label>QR:</label>
-                    <div>
-                        {imageDataQR ? (
-                            <img src={imageDataQR} alt="QR usuario" style={{ width: '100%', height: 'auto' }} />
-                        ) : (
-                            <p>Cargando imagen...</p>
-                        )}
-                    </div>
-                </div>
-                </div>
+            <div className="photo-container">
+            {imageData ? (
+              <img src={imageData} alt="Imagen del usuario" className="user-photo-inline"/>
+            ) : (
+              <p>Cargando imagen...</p>
+            )}
+
             </div>
-                
-                <div className="form-group">
-                    <label>Código:</label>
-                </div>
-                </div>
-            </div>
-            </div>
-            {/* Botón de iniciar sesión */}
-            <div className="text-center">
-                        <button type="button" 
-                        className="btn-Exit btn-primary btn-block"
-                        onClick={handleLogout}
-                        >
-                        Cerrar sesión
-                        </button>
-                    </div>
-            <div className="carnet-footer">
-            <p>SENA</p>
-            </div>
-            
+          </div>
+
+          <div className="info-group">
+            <p className="role-label">INSTRUCTOR</p>
+            <div className="linea-separador"></div>
+            <p className="name">
+              {usuarioInfo.Nombre} {usuarioInfo.Apellido}
+            </p>
+            <p className="document">C.C. {usuarioInfo.Numero_Identificacion}</p>
+            <p className="rh">RH: {usuarioInfo.RH}</p>
+             <div className="linea-separador2"></div>
+            <p className="regional">Regional Distrito Capital</p>
+            <p className="centro">
+              Centro de Gestión de Mercados logística y <br />
+              Tecnologías de la Información
+            </p>
+          </div>
         </div>
+
+        <div className="carnet-right">
+          <p className="paragraph">
+           Este carnet es personal e intransferible; identifica al portador como aprendiz del Servicio Nacional de Aprendizaje SENA. El SENA es una entidad que imparte formación técnica profesional y tecnológica que forma parte de la Educación Superior. Se solicita a las autoridades públicas, civiles y militares prestarle al portador toda la colaboración para la realización de sus actividades de aprendizaje. Por disposición de las leyes 418 de 1997, 548 de 1991, 642 de 2001 y 1106 de 2006, los menores de 18 años y estudiantes de Educación Superior no serán incorporados al servicio militar.
+          </p>
+            
+
+            <div className="qr-section">
+            {imageDataQR ? (
+              <img src={imageDataQR} alt="QR usuario" className="qr-code" />
+            ) : (
+              <p>Cargando QR...</p>
+            )}
+          </div>
+          
+          <div className="info-row">
+            <span className="info-label">Ficha:</span>
+            <span className="info-value">{usuarioInfo.ficha}</span>
+          </div>
+          <div className="info-row">
+            <span className="info-label">Programa:</span>
+            <span className="info-value">
+              ANÁLISIS Y DESARROLLO DE SOFTWARE
+            </span>
+          </div>
+          <div className="info-row">
+            <span className="info-label">Vence:</span>
+            <span className="info-value">{fechaFormateada}</span>
+          </div>
+          
         </div>
-    );
+      </div>
+
+      <div className="logout-container">
+        <button type="button" className="btn-Exit" onClick={handleLogout}>
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+  );
 };
 
-export default CarnetInstructor;
+export default CarnetAprendiz;

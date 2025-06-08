@@ -23,7 +23,7 @@ class Carnet(BaseModel):
 
 @carnetRouter.get("/ver_qr/{id_usuario}")
 def ver_qr(id_usuario: int):
-    carpeta_destino = "C:\\Users\\Aprendiz\\Desktop\\Proyecto\\Qr"
+    carpeta_destino = "C:\\Users\\juan2\\Documents\\Proyecto\\Qr"
     ruta_archivo = carpeta_destino + f"/qr_{id_usuario}.png"
     if os.path.exists(ruta_archivo):
         return FileResponse(ruta_archivo, media_type="image/png")
@@ -32,7 +32,7 @@ def ver_qr(id_usuario: int):
 
 @carnetRouter.get("/ver_foto/{id_usuario}")
 def ver_qr(id_usuario: int):
-    carpeta_destino = "C:\\Users\\Aprendiz\\Desktop\\Proyecto\\FotoUser"
+    carpeta_destino = "C:\\Users\\juan2\\Documents\\Proyecto\\FotoUser"
     ruta_archivo = carpeta_destino + f"/foto_{id_usuario}.png"
     if os.path.exists(ruta_archivo):
         return FileResponse(ruta_archivo, media_type="image/png")
@@ -42,7 +42,7 @@ def ver_qr(id_usuario: int):
 
 def generar_codigo_qr(id_usuario: int) -> str:
      # Contenido único del QR
-    carpeta_destino = "C:\\Users\\Aprendiz\\Desktop\\Proyecto\\Qr"
+    carpeta_destino = "C:\\Users\\juan2\\Documents\\Proyecto\\Qr"
     contenido_qr = f"CARNET-{id_usuario}"
 
     # Asegurar que la carpeta exista
@@ -80,7 +80,7 @@ def crear_carnet( id_usuario: int = Form(...), imagen: UploadFile = File(...)):
         
          # 3. Guardar imagen subida
         Foto = f"foto_{id_usuario}.png"
-        ruta_guardado = f"C:\\Users\\Aprendiz\\Desktop\\Proyecto\\FotoUser/{Foto}"
+        ruta_guardado = f"C:\\Users\\juan2\\Documents\\Proyecto\\FotoUser/{Foto}"
         
         with open(ruta_guardado, "wb") as f:
             f.write(imagen.file.read())

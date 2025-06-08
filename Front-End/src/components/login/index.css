@@ -112,14 +112,7 @@
     padding: -6px;  
 }
 
-.cuadro-inferior2 {
-    position: fixed;
-    bottom: 0;
-    left: 0%;
-    width: 100%;
-    padding: 0%;
-    box-sizing: border-box;
-}
+
 /* Estilos base para el contenedor principal del login */
 .login-container {
     display: flex;
