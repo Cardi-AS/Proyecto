@@ -2,38 +2,52 @@ import React, { useState } from 'react';
 import './index.css';
 
 // Importar componentes de typesCarnets
-import Aprendices from './typesCarnets/aprendiz';
-import Instructores from './typesCarnets/instructor';
-import Administrativos from './typesCarnets/administrativos';
+import Forms from '../typesCarnets/Formulario';
+import CrearCarnet from '../typesCarnets/Crear_Carnet';
+import EliminarCarnet from '../typesCarnets/Eliminar_Carnet';
+import EliminarUsuario from '../typesCarnets/Eliminar_Usuario';
+
 
 const MenuColumna = () => {
   const [activeItem, setActiveItem] = useState(null);
 
   const menuItems = [
-    { 
-      id: 'aprendices',
-      title: "CARNET", 
-      subtitle: "APRENDICES",
-      component: <Aprendices />
+
+     { 
+      id: 'Crear-Usuario',
+      title: "CREAR-USUARIO", 
+      subtitle: "Crear un usuario", 
+      component: <Forms/>
     },
+
     { 
-      id: 'instructores',
-      title: "CARNET", 
-      subtitle: "INSTRUCTORES",
-      component: <Instructores />
+        id: 'Actualizar-Usuario',
+        title: "ACTUALIZAR-USUARIO", 
+        subtitle: "Actualizar Carnet para un usuario", 
+        component: <Forms/>
     },
-    { 
-      id: 'administrativos',
-      title: "CARNET", 
-      subtitle: "ADMINISTRATIVOS",
-      component: <Administrativos />
+
+     { 
+      id: 'Eliminar-Usuario',
+      title: "ELIMINAR-USUARIO", 
+      subtitle: "Eliminar un usuario", 
+      component: <EliminarUsuario/>
     },
+
     { 
-      id: 'soporte',
-      title: "SOPORTE", 
-      subtitle: "TECNICO",
-      content: "Contenido de soporte técnico del sistema"
-    }
+      id: 'Crear-Carnet',
+      title: "CREAR-CARNET", 
+      subtitle: "Crear Carnet para un usuario", 
+      component: <CrearCarnet/>
+    },
+
+     { 
+      id: 'Eliminar-Carnet',
+      title: "ELIMINAR-CARNET", 
+      subtitle: "Eliminar Carnet para un usuario", 
+      component: <EliminarCarnet/>
+    },
+
   ];
 
   const renderContent = () => {

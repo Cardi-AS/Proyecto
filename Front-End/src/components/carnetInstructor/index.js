@@ -58,7 +58,7 @@ const CarnetAprendiz = () => {
             </p>
             <p className="document">C.C. {usuarioInfo.Numero_Identificacion}</p>
             <p className="rh">RH: {usuarioInfo.RH}</p>
-             <div className="linea-separador2"></div>
+            <div className="linea-separador2"></div>
             <p className="regional">Regional Distrito Capital</p>
             <p className="centro">
               Centro de Gestión de Mercados logística y <br />
