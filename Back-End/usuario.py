@@ -108,3 +108,22 @@ def crear_usuario(usuario: UsuarioCrear):
         raise HTTPException(status_code=400, detail=f"Error al crear el usuario: {err}")
 
     return {"message": "Usuario creado correctamente"}
+
+@userRouter.delete("/eliminar/{Id_Usuario}", status_code=status.HTTP_200_OK)
+def eliminar_usuario(Id_Usuario: int):
+    # Primero, verifica si el usuario existe
+    select_query = "SELECT * FROM usuario WHERE Id_Usuario = %s"
+    cursor.execute(select_query, (Id_Usuario,))
+    usuario = cursor.fetchone()
+
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    # Si existe, procede a eliminarlo
+    delete_query = "DELETE FROM usuario WHERE Id_Usuario = %s"
+    try:
+        cursor.execute(delete_query, (Id_Usuario,))
+        mydb.commit()
+        return {"message": f"Usuario con ID {Id_Usuario} eliminado correctamente"}
+    except mysql.connector.Error as err:
+        raise HTTPException(status_code=500, detail=f"Error al eliminar el usuario: {err}")

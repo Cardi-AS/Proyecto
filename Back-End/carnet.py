@@ -23,7 +23,7 @@ class Carnet(BaseModel):
 
 @carnetRouter.get("/ver_qr/{id_usuario}")
 def ver_qr(id_usuario: int):
-    carpeta_destino = "C:\\Users\\juan2\\Documents\\Proyecto\\Qr"
+    carpeta_destino = "C:\\Users\\mauri\\OneDrive\\Escritorio\\Proyecto\\Qr"
     ruta_archivo = carpeta_destino + f"/qr_{id_usuario}.png"
     if os.path.exists(ruta_archivo):
         return FileResponse(ruta_archivo, media_type="image/png")
@@ -32,7 +32,7 @@ def ver_qr(id_usuario: int):
 
 @carnetRouter.get("/ver_foto/{id_usuario}")
 def ver_qr(id_usuario: int):
-    carpeta_destino = "C:\\Users\\juan2\\Documents\\Proyecto\\FotoUser"
+    carpeta_destino = "C:\\Users\\mauri\\OneDrive\\Escritorio\\Proyecto\\FotoUser"
     ruta_archivo = carpeta_destino + f"/foto_{id_usuario}.png"
     if os.path.exists(ruta_archivo):
         return FileResponse(ruta_archivo, media_type="image/png")
@@ -42,7 +42,7 @@ def ver_qr(id_usuario: int):
 
 def generar_codigo_qr(id_usuario: int) -> str:
      # Contenido único del QR
-    carpeta_destino = "C:\\Users\\juan2\\Documents\\Proyecto\\Qr"
+    carpeta_destino = "C:\\Users\\mauri\\OneDrive\\Escritorio\\Proyecto\\Qr"
     contenido_qr = f"CARNET-{id_usuario}"
 
     # Asegurar que la carpeta exista
@@ -60,14 +60,19 @@ def generar_codigo_qr(id_usuario: int) -> str:
 
 
 @carnetRouter.get("/carnet/{Id_Usuario}", status_code=status.HTTP_200_OK)
-def get_user_by_id(Id_Usuario: int):
-    select_query = "SELECT * FROM Carnet WHERE Id_Usuario = %s"
+def get_carnet_by_usuario(Id_Usuario: int):
+    select_query = """
+    SELECT Id_Carnet, Fk_Id_Usuario, Ficha, Fecha_Expiracion, Foto, CodigoQR
+    FROM carnet 
+    WHERE Fk_Id_Usuario = %s
+    """
     cursor.execute(select_query, (Id_Usuario,))
     result = cursor.fetchall()
     if result:
         return result
     else:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Carnet no encontrado para este usuario")
+
     
 @carnetRouter.post("/crear-carnet", status_code=status.HTTP_201_CREATED)
 def crear_carnet( id_usuario: int = Form(...), imagen: UploadFile = File(...)):
@@ -80,7 +85,7 @@ def crear_carnet( id_usuario: int = Form(...), imagen: UploadFile = File(...)):
         
          # 3. Guardar imagen subida
         Foto = f"foto_{id_usuario}.png"
-        ruta_guardado = f"C:\\Users\\juan2\\Documents\\Proyecto\\FotoUser/{Foto}"
+        ruta_guardado = f"C:\\Users\\mauri\\OneDrive\\Escritorio\\Proyecto\\FotoUser/{Foto}"
         
         with open(ruta_guardado, "wb") as f:
             f.write(imagen.file.read())
@@ -108,3 +113,37 @@ def crear_carnet( id_usuario: int = Form(...), imagen: UploadFile = File(...)):
 
     except mysql.connector.Error as err:
         raise HTTPException(status_code=500, detail=f"Error del servidor: {err}")
+    
+@carnetRouter.delete("/eliminar-carnet/{id_usuario}", status_code=status.HTTP_200_OK)
+def eliminar_carnet(id_usuario: int):
+    try:
+        # Verificar si existe el carnet
+        select_query = "SELECT Foto, CodigoQR FROM carnet WHERE Fk_Id_Usuario = %s"
+        cursor.execute(select_query, (id_usuario,))
+        carnet = cursor.fetchone()
+
+        if not carnet:
+            raise HTTPException(status_code=404, detail="Carnet no encontrado")
+
+        # Extraer nombres de archivos
+        nombre_foto, nombre_qr = carnet
+
+        # Eliminar registro de la base de datos
+        delete_query = "DELETE FROM carnet WHERE Fk_Id_Usuario = %s"
+        cursor.execute(delete_query, (id_usuario,))
+        mydb.commit()
+
+        # Eliminar archivos locales si existen
+        ruta_foto = f"C:\\Users\\mauri\\OneDrive\\Escritorio\\Proyecto\\FotoUser\\{nombre_foto}"
+        ruta_qr = f"C:\\Users\\mauri\\OneDrive\\Escritorio\\Proyecto\\Qr\\{nombre_qr}"
+
+        if os.path.exists(ruta_foto):
+            os.remove(ruta_foto)
+
+        if os.path.exists(ruta_qr):
+            os.remove(ruta_qr)
+
+        return {"message": f"Carnet del usuario {id_usuario} eliminado correctamente"}
+
+    except mysql.connector.Error as err:
+        raise HTTPException(status_code=500, detail=f"Error al eliminar el carnet: {err}")
