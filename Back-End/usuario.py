@@ -91,34 +91,7 @@ def validate_information(correo: str = Query(...), contrasena: str = Query(...))
                 foto = result[9],
                 CodigoQR = result[10],
             )
-
-            # Obtener la IP
-            ip = request.client.host
-
-             # Obtener geolocalización usando un servicio externo
-            try:
-                response = requests.get(f"https://ipinfo.io/{ip}/json", timeout=3)
-                if response.status_code == 200:
-                    geo_data = response.json()
-                    geolocalizacion = f"{geo_data.get('city', '')}, {geo_data.get('region', '')}, {geo_data.get('country', '')}"
-                else:
-                    geolocalizacion = "No disponible"
-            except Exception:
-                geolocalizacion = "No disponible"
-
-            # Insertar en la tabla inicioSesionAplicacion
-            insert_query = """
-            INSERT INTO inicioSesionAplicacion 
-            (fk_Id_usuario, fecha_inicio_sesion, ip_dispositivo, geolocalizacion)
-            VALUES (%s, %s, %s, %s)
-            """
-            insert_values = (
-                usuario.Id_Usuario,
-                datetime.now(),
-                ip,
-                geolocalizacion
-            )
-            cursor.execute(insert_query, insert_values)
+            
             mydb.commit()
 
             print(usuario)
