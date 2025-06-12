@@ -55,23 +55,23 @@ const ActualizarUsuario = () => {
         try {
             console.log(`Buscando usuario con ID: ${userId}`);
             const response = await fetch(`http://localhost:8000/usuario/${userId}`);
-            
+
             console.log(`Respuesta del servidor:`, response.status, response.statusText);
-            
+
             if (response.ok) {
                 const userData = await response.json();
                 console.log('Datos del usuario recibidos:', userData);
-                
+
                 setFormData({
-                    Nombre: userData.Nombre || '',
-                    Apellido: userData.Apellido || '',
-                    Correo: userData.Correo || '',
-                    Contraseña: '', // No cargar la contraseña por seguridad
-                    TipoIdentificacion: userData.TipoIdentificacion || '',
-                    NumeroIdentificacion: userData.NumeroIdentificacion || '',
-                    Rol: userData.Rol || '',
-                    Edad: userData.Edad ? userData.Edad.toString() : '',
-                    RH: userData.RH || ''
+                    Nombre: userData.Nombre || null,
+                    Apellido: userData.Apellido || null,
+                    Correo: userData.Correo || null,
+                    Contraseña: null, // No cargar la contraseña por seguridad
+                    TipoIdentificacion: userData.TipoIdentificacion || null,
+                    NumeroIdentificacion: userData.NumeroIdentificacion ? userData.NumeroIdentificacion.toString() : null,
+                    Rol: userData.Rol || null,
+                    Edad: userData.Edad ? userData.Edad.toString() : null,
+                    RH: userData.RH || null
                 });
                 setUserFound(true);
                 setMessage(`Usuario encontrado: ${userData.Nombre} ${userData.Apellido}`);
@@ -107,62 +107,34 @@ const ActualizarUsuario = () => {
         setMessage('');
 
         try {
-            // Preparar datos para enviar (solo campos que no estén vacíos)
             const dataToSend = {};
-            
-            // Corregir los nombres de los campos para que coincidan con el backend
-            if (formData.Nombre.trim()) dataToSend.Nombre = formData.Nombre.trim();
-            if (formData.Apellido.trim()) dataToSend.Apellido = formData.Apellido.trim();
-            if (formData.Correo.trim()) dataToSend.Correo = formData.Correo.trim();
-            if (formData.Contraseña.trim()) dataToSend.Contraseña = formData.Contraseña.trim();
-            if (formData.TipoIdentificacion) dataToSend.TipoIdentificacion = formData.TipoIdentificacion;
-            if (formData.NumeroIdentificacion.trim()) dataToSend.NumeroIdentificacion = formData.NumeroIdentificacion.trim();
-            if (formData.Rol) dataToSend.Rol = formData.Rol;
-            if (formData.Edad) dataToSend.Edad = parseInt(formData.Edad);
-            if (formData.RH) dataToSend.RH = formData.RH;
 
-            console.log('Datos a enviar:', dataToSend); // Para debug
-
-            // Verificar que hay al menos un campo para actualizar
-            if (Object.keys(dataToSend).length === 0) {
-                setError('Debe modificar al menos un campo para actualizar');
-                setLoading(false);
-                return;
+        // Solo enviamos campos que el usuario realmente quiera cambiar (no vacíos)
+        Object.keys(formData).forEach(key => {
+            if (formData[key] !== '' && formData[key] !== null) {
+                dataToSend[key] = formData[key];
             }
+        });
 
-            const response = await fetch(`http://localhost:8000/actualizar/${userId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(dataToSend)
-            });
+        console.log("Datos a enviar:", dataToSend);
+        const response = await fetch(`http://127.0.0.1:8000/actualizar/${userId}`, {
+            method: 'PUT', // o 'PATCH' dependiendo de tu backend
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dataToSend),
+        });
 
-            const data = await response.json();
-            console.log('Respuesta del servidor:', data); // Para debug
-
-            if (response.ok) {
-                setMessage(data.message || 'Usuario actualizado correctamente');
-                
-                // Actualizar los datos del formulario con la respuesta del servidor
-                if (data.usuario) {
-                    setFormData(prev => ({
-                        ...prev,
-                        Nombre: data.usuario.Nombre || prev.Nombre,
-                        Apellido: data.usuario.Apellido || prev.Apellido,
-                        Correo: data.usuario.Correo || prev.Correo,
-                        TipoIdentificacion: data.usuario.TipoIdentificacion || prev.TipoIdentificacion,
-                        NumeroIdentificacion: data.usuario.NumeroIdentificacion || prev.NumeroIdentificacion,
-                        Rol: data.usuario.Rol || prev.Rol,
-                        Edad: data.usuario.Edad ? data.usuario.Edad.toString() : prev.Edad,
-                        RH: data.usuario.RH || prev.RH,
-                        Contraseña: '' // Limpiar campo de contraseña
-                    }));
-                }
-                
-            } else {
-                setError(data.detail || 'Error al actualizar el usuario');
-            }
+        if (response.ok) {
+            const result = await response.json();
+            setMessage('Usuario actualizado correctamente');
+            console.log('Respuesta:', result);
+        } else {
+            const errorData = await response.json();
+            setError(errorData.detail || 'Error al actualizar usuario');
+            console.error('Error en la actualización:', errorData);
+        }   
+          
         } catch (err) {
             setError('Error de conexión con el servidor');
             console.error('Error:', err);
@@ -202,7 +174,7 @@ const ActualizarUsuario = () => {
                 <div className="carnet-header">
                     <h2>Actualizar Usuario</h2>
                 </div>
-                
+
                 <div className="carnet-body">
                     {/* Sección para buscar usuario */}
                     <div className="search-section" style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '5px' }}>
@@ -211,10 +183,10 @@ const ActualizarUsuario = () => {
                             <div className="col-md-6">
                                 <div className="form-group">
                                     <label>ID del Usuario:</label>
-                                    <input 
-                                        type="number" 
-                                        value={userId} 
-                                        onChange={(e) => setUserId(e.target.value)} 
+                                    <input
+                                        type="number"
+                                        value={userId}
+                                        onChange={(e) => setUserId(e.target.value)}
                                         className="form-control"
                                         placeholder="Ingresa el ID del usuario"
                                         disabled={loadingUser}
@@ -225,28 +197,28 @@ const ActualizarUsuario = () => {
                                 <div className="form-group">
                                     <label>&nbsp;</label>
                                     <div>
-                                        <button 
-                                            type="button" 
+                                        <button
+                                            type="button"
                                             className="btn-Exit"
                                             onClick={buscarUsuario}
                                             disabled={loadingUser || !userId.trim()}
-                                            style={{ marginRight: '10px' }}
+                                            style={{ marginRight: '10px'}}
                                         >
                                             {loadingUser ? 'Buscando...' : 'Buscar'}
                                         </button>
-                                        <button 
-                                            type="button" 
+                                        <button
+                                            type="button"
                                             className="btn-Exit"
                                             onClick={cargarUsuariosDisponibles}
-                                            style={{ backgroundColor: '#007bff', marginRight: '10px' }}
+                                            style={{ backgroundColor: '#007bff', marginRight: '10px' , marginTop:'10px' }}
                                         >
                                             Ver Usuarios
                                         </button>
-                                        <button 
-                                            type="button" 
+                                        <button
+                                            type="button"
                                             className="btn-Exit"
                                             onClick={handleReset}
-                                            style={{ backgroundColor: '#6c757d' }}
+                                            style={{ backgroundColor: '#6c757d' ,  marginTop:'10px'}}
                                         >
                                             Limpiar
                                         </button>
@@ -262,11 +234,11 @@ const ActualizarUsuario = () => {
                                 <div className="row">
                                     {usuariosDisponibles.map(usuario => (
                                         <div key={usuario.Id_Usuario} className="col-md-4" style={{ marginBottom: '10px' }}>
-                                            <div 
-                                                style={{ 
-                                                    padding: '8px', 
-                                                    border: '1px solid #dee2e6', 
-                                                    borderRadius: '3px', 
+                                            <div
+                                                style={{
+                                                    padding: '8px',
+                                                    border: '1px solid #dee2e6',
+                                                    borderRadius: '3px',
                                                     cursor: 'pointer',
                                                     backgroundColor: userId === usuario.Id_Usuario.toString() ? '#e3f2fd' : 'white'
                                                 }}
@@ -275,15 +247,15 @@ const ActualizarUsuario = () => {
                                                     setMostrarUsuarios(false);
                                                 }}
                                             >
-                                                <strong>ID: {usuario.Id_Usuario}</strong><br/>
-                                                {usuario.Nombre} {usuario.Apellido}<br/>
+                                                <strong>ID: {usuario.Id_Usuario}</strong><br />
+                                                {usuario.Nombre} {usuario.Apellido}<br />
                                                 <small>{usuario.Rol}</small>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                                <button 
-                                    type="button" 
+                                <button
+                                    type="button"
                                     onClick={() => setMostrarUsuarios(false)}
                                     style={{ marginTop: '10px', padding: '5px 10px', border: 'none', backgroundColor: '#6c757d', color: 'white', borderRadius: '3px' }}
                                 >
@@ -300,25 +272,25 @@ const ActualizarUsuario = () => {
                                 <div className="col-md-6">
                                     <div className="form-group">
                                         <label>Nombre:</label>
-                                        <input 
-                                            type="text" 
-                                            name="Nombre" 
-                                            value={formData.Nombre} 
-                                            onChange={handleChange} 
+                                        <input
+                                            type="text"
+                                            name="Nombre"
+                                            value={formData.Nombre}
+                                            onChange={handleChange}
                                             className="form-control"
                                             placeholder="Dejar vacío para no cambiar"
                                         />
                                     </div>
                                 </div>
-                                
+
                                 <div className="col-md-6">
                                     <div className="form-group">
                                         <label>Apellido:</label>
-                                        <input 
-                                            type="text" 
-                                            name="Apellido" 
-                                            value={formData.Apellido} 
-                                            onChange={handleChange} 
+                                        <input
+                                            type="text"
+                                            name="Apellido"
+                                            value={formData.Apellido}
+                                            onChange={handleChange}
                                             className="form-control"
                                             placeholder="Dejar vacío para no cambiar"
                                         />
@@ -330,25 +302,25 @@ const ActualizarUsuario = () => {
                                 <div className="col-md-6">
                                     <div className="form-group">
                                         <label>Correo:</label>
-                                        <input 
-                                            type="email" 
-                                            name="Correo" 
-                                            value={formData.Correo} 
-                                            onChange={handleChange} 
+                                        <input
+                                            type="email"
+                                            name="Correo"
+                                            value={formData.Correo}
+                                            onChange={handleChange}
                                             className="form-control"
                                             placeholder="Dejar vacío para no cambiar"
                                         />
                                     </div>
                                 </div>
-                                
+
                                 <div className="col-md-6">
                                     <div className="form-group">
                                         <label>Nueva Contraseña:</label>
-                                        <input 
-                                            type="password" 
-                                            name="Contraseña" 
-                                            value={formData.Contraseña} 
-                                            onChange={handleChange} 
+                                        <input
+                                            type="password"
+                                            name="Contraseña"
+                                            value={formData.Contraseña}
+                                            onChange={handleChange}
                                             className="form-control"
                                             placeholder="Dejar vacío para no cambiar"
                                         />
@@ -363,10 +335,10 @@ const ActualizarUsuario = () => {
                                 <div className="col-md-6">
                                     <div className="form-group">
                                         <label>Tipo de Identificación:</label>
-                                        <select 
-                                            name="TipoIdentificacion" 
-                                            value={formData.TipoIdentificacion} 
-                                            onChange={handleChange} 
+                                        <select
+                                            name="TipoIdentificacion"
+                                            value={formData.TipoIdentificacion}
+                                            onChange={handleChange}
                                             className="form-control"
                                         >
                                             <option value="">No cambiar</option>
@@ -377,15 +349,15 @@ const ActualizarUsuario = () => {
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <div className="col-md-6">
                                     <div className="form-group">
                                         <label>Número de Identificación:</label>
-                                        <input 
-                                            type="text" 
-                                            name="NumeroIdentificacion" 
-                                            value={formData.NumeroIdentificacion} 
-                                            onChange={handleChange} 
+                                        <input
+                                            type="text"
+                                            name="NumeroIdentificacion"
+                                            value={formData.NumeroIdentificacion}
+                                            onChange={handleChange}
                                             className="form-control"
                                             placeholder="Dejar vacío para no cambiar"
                                         />
@@ -397,10 +369,10 @@ const ActualizarUsuario = () => {
                                 <div className="col-md-4">
                                     <div className="form-group">
                                         <label>Rol:</label>
-                                        <select 
-                                            name="Rol" 
-                                            value={formData.Rol} 
-                                            onChange={handleChange} 
+                                        <select
+                                            name="Rol"
+                                            value={formData.Rol}
+                                            onChange={handleChange}
                                             className="form-control"
                                         >
                                             <option value="">No cambiar</option>
@@ -411,15 +383,15 @@ const ActualizarUsuario = () => {
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <div className="col-md-4">
                                     <div className="form-group">
                                         <label>Edad:</label>
-                                        <input 
-                                            type="number" 
-                                            name="Edad" 
-                                            value={formData.Edad} 
-                                            onChange={handleChange} 
+                                        <input
+                                            type="number"
+                                            name="Edad"
+                                            value={formData.Edad}
+                                            onChange={handleChange}
                                             className="form-control"
                                             min="16"
                                             max="100"
@@ -431,10 +403,10 @@ const ActualizarUsuario = () => {
                                 <div className="col-md-4">
                                     <div className="form-group">
                                         <label>RH:</label>
-                                        <select 
-                                            name="RH" 
-                                            value={formData.RH} 
-                                            onChange={handleChange} 
+                                        <select
+                                            name="RH"
+                                            value={formData.RH}
+                                            onChange={handleChange}
                                             className="form-control"
                                         >
                                             <option value="">No cambiar</option>
@@ -452,8 +424,8 @@ const ActualizarUsuario = () => {
                             </div>
 
                             <div className="logout-container2">
-                                <button 
-                                    type="submit" 
+                                <button
+                                    type="submit"
                                     className="btn-Exit"
                                     disabled={loading}
                                     style={{ marginRight: '10px' }}
@@ -470,7 +442,7 @@ const ActualizarUsuario = () => {
                             {message}
                         </div>
                     )}
-                    
+
                     {error && (
                         <div className="alert alert-error" style={{ marginTop: '15px', padding: '10px', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '5px', color: '#721c24' }}>
                             {error}

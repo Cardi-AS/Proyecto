@@ -39,6 +39,17 @@ class UsuarioCrear(BaseModel):
     Edad: int
     RH: str
 
+class UsuarioActualizar(BaseModel):
+    Nombre: str
+    Apellido: str
+    Correo: EmailStr
+    TipoIdentificacion: str
+    NumeroIdentificacion: str
+    Rol: str
+    Edad: int
+    RH: str
+    Contraseña: Optional[str] = None  # Contraseña opcional para actualización
+
 @userRouter.get("/users/{Id_Usuario}", status_code=status.HTTP_200_OK)
 def get_user_by_id(Id_Usuario: int):
     select_query = "SELECT * FROM usuario WHERE Id_Usuario = %s"
@@ -142,6 +153,66 @@ def crear_usuario(usuario: UsuarioCrear):
 
     return {"message": "Usuario creado correctamente"}
 
+@userRouter.put("/actualizar/{Id_Usuario}", status_code=status.HTTP_200_OK)
+def actualizar_usuario(Id_Usuario: int, usuario: UsuarioActualizar):
+    """Endpoint para actualizar un usuario existente"""
+    
+    # Primero verificar si el usuario existe
+    select_query = "SELECT * FROM usuario WHERE Id_Usuario = %s"
+    cursor.execute(select_query, (Id_Usuario,))
+    usuario_existente = cursor.fetchone()
+    
+    if not usuario_existente:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    # Preparar la consulta de actualización
+    if usuario.Contraseña:
+        # Si se proporciona contraseña, actualizarla también
+        hashed_password = hashlib.sha256(usuario.Contraseña.encode()).hexdigest()
+        update_query = """
+        UPDATE usuario SET 
+        Nombre = %s, Apellido = %s, Correo = %s, Contraseña = %s,
+        Tipo_Identificacion = %s, Numero_Identificacion = %s,
+        Rol = %s, Edad = %s, RH = %s
+        WHERE Id_Usuario = %s
+        """
+        values = (
+            usuario.Nombre, usuario.Apellido, usuario.Correo, hashed_password,
+            usuario.TipoIdentificacion, usuario.NumeroIdentificacion,
+            usuario.Rol, usuario.Edad, usuario.RH, Id_Usuario
+        )
+    else:
+        # Si no se proporciona contraseña, no actualizarla
+        update_query = """
+        UPDATE usuario SET 
+        Nombre = %s, Apellido = %s, Correo = %s,
+        Tipo_Identificacion = %s, Numero_Identificacion = %s,
+        Rol = %s, Edad = %s, RH = %s
+        WHERE Id_Usuario = %s
+        """
+        values = (
+            usuario.Nombre, usuario.Apellido, usuario.Correo,
+            usuario.TipoIdentificacion, usuario.NumeroIdentificacion,
+            usuario.Rol, usuario.Edad, usuario.RH, Id_Usuario
+        )
+    
+    try:
+        cursor.execute(update_query, values)
+        mydb.commit()
+        
+        # Verificar que se actualizó correctamente
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=400, detail="No se pudo actualizar el usuario")
+            
+        return {
+            "message": f"Usuario con ID {Id_Usuario} actualizado correctamente",
+            "Id_Usuario": Id_Usuario
+        }
+        
+    except mysql.connector.Error as err:
+        mydb.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al actualizar el usuario: {err}")
+
 @userRouter.delete("/eliminar/{Id_Usuario}", status_code=status.HTTP_200_OK)
 def eliminar_usuario(Id_Usuario: int):
     # Primero, verifica si el usuario existe
@@ -175,11 +246,6 @@ def eliminar_usuario(Id_Usuario: int):
         mydb.rollback()
         raise HTTPException(status_code=500, detail=f"Error al eliminar el usuario: {err}")
 
-
-
-
-# Reemplaza el endpoint /usuario/{Id_Usuario} existente con esta versión corregida:
-
 @userRouter.get("/usuario/{Id_Usuario}", status_code=status.HTTP_200_OK)
 def obtener_usuario_para_editar(Id_Usuario: int):
     # Agregar logging para debug
@@ -203,8 +269,8 @@ def obtener_usuario_para_editar(Id_Usuario: int):
                 "Nombre": result[1],
                 "Apellido": result[2],
                 "Correo": result[3],
-                "TipoIdentificacion": result[4],  # Nota: cambié el nombre aquí
-                "NumeroIdentificacion": result[5],  # Nota: cambié el nombre aquí
+                "TipoIdentificacion": result[4],
+                "NumeroIdentificacion": result[5],
                 "Rol": result[6],
                 "Edad": result[7],
                 "RH": result[8]
@@ -222,8 +288,6 @@ def obtener_usuario_para_editar(Id_Usuario: int):
         print(f"Error general: {e}")
         raise HTTPException(status_code=500, detail=f"Error inesperado: {e}")
 
-
-# También vamos a crear un endpoint alternativo para listar todos los usuarios disponibles
 @userRouter.get("/usuarios/lista", status_code=status.HTTP_200_OK)
 def listar_usuarios_disponibles():
     """Endpoint para obtener una lista simple de usuarios con ID y nombres"""
@@ -254,108 +318,4 @@ def listar_usuarios_disponibles():
         
     except mysql.connector.Error as err:
         raise HTTPException(status_code=500, detail=f"Error del servidor: {err}")
-    
 
-# Modelo corregido
-class UsuarioActualizar(BaseModel):
-    Nombre: Optional[str]
-    Apellido: Optional[str]
-    Correo: Optional[EmailStr]
-    Contraseña: Optional[str]  # Agregado para manejar actualización de contraseña
-    TipoIdentificacion: Optional[str]
-    NumeroIdentificacion: Optional[str]  # ✅ Corregido el typo
-    Rol: Optional[str]
-    Edad: Optional[int]
-    RH: Optional[str]
-
-@userRouter.put("/actualizar/{Id_Usuario}", status_code=status.HTTP_200_OK)
-def actualizar_usuario(Id_Usuario: int, datos: UsuarioActualizar):
-    
-    # Verificar si el usuario existe
-    cursor.execute("SELECT * FROM usuario WHERE Id_Usuario = %s", (Id_Usuario,))
-    if not cursor.fetchone():
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-    # Preparar campos dinámicamente
-    campos = []
-    valores = []
-
-    if datos.Nombre is not None and datos.Nombre.strip() != "":
-        campos.append("Nombre = %s")
-        valores.append(datos.Nombre.strip())
-    
-    if datos.Apellido is not None and datos.Apellido.strip() != "":
-        campos.append("Apellido = %s")
-        valores.append(datos.Apellido.strip())
-    
-    if datos.Correo is not None and datos.Correo.strip() != "":
-        campos.append("Correo = %s")
-        valores.append(datos.Correo.strip())
-    
-    if datos.Contraseña is not None and datos.Contraseña.strip() != "":
-        # Hashear la nueva contraseña
-        hashed_password = hashlib.sha256(datos.Contraseña.encode()).hexdigest()
-        campos.append("Contraseña = %s")
-        valores.append(hashed_password)
-    
-    if datos.TipoIdentificacion is not None and datos.TipoIdentificacion.strip() != "":
-        campos.append("Tipo_Identificacion = %s")
-        valores.append(datos.TipoIdentificacion.strip())
-    
-    if datos.NumeroIdentificacion is not None and datos.NumeroIdentificacion.strip() != "":
-        campos.append("Numero_Identificacion = %s")  # ✅ Corregido
-        valores.append(datos.NumeroIdentificacion.strip())
-    
-    if datos.Rol is not None and datos.Rol.strip() != "":
-        campos.append("Rol = %s")
-        valores.append(datos.Rol.strip())
-    
-    if datos.Edad is not None:
-        campos.append("Edad = %s")
-        valores.append(datos.Edad)
-    
-    if datos.RH is not None and datos.RH.strip() != "":
-        campos.append("RH = %s")
-        valores.append(datos.RH.strip())
-
-    if not campos:
-        raise HTTPException(status_code=400, detail="No se enviaron datos válidos para actualizar")
-
-    update_query = f"UPDATE usuario SET {', '.join(campos)} WHERE Id_Usuario = %s"
-    valores.append(Id_Usuario)
-
-    try:
-        cursor.execute(update_query, tuple(valores))
-        mydb.commit()
-        
-        # Obtener los datos actualizados del usuario
-        cursor.execute("""
-            SELECT Id_Usuario, Nombre, Apellido, Correo, Tipo_Identificacion, 
-                   Numero_Identificacion, Rol, Edad, RH 
-            FROM usuario WHERE Id_Usuario = %s
-        """, (Id_Usuario,))
-        usuario_actualizado = cursor.fetchone()
-        
-        if usuario_actualizado:
-            usuario_data = {
-                "Id_Usuario": usuario_actualizado[0],
-                "Nombre": usuario_actualizado[1],
-                "Apellido": usuario_actualizado[2],
-                "Correo": usuario_actualizado[3],
-                "TipoIdentificacion": usuario_actualizado[4],
-                "NumeroIdentificacion": usuario_actualizado[5],
-                "Rol": usuario_actualizado[6],
-                "Edad": usuario_actualizado[7],
-                "RH": usuario_actualizado[8]
-            }
-            
-            return {
-                "message": f"Usuario {Id_Usuario} actualizado correctamente",
-                "usuario": usuario_data
-            }
-        else:
-            return {"message": f"Usuario {Id_Usuario} actualizado correctamente"}
-            
-    except mysql.connector.Error as err:
-        mydb.rollback()
-        raise HTTPException(status_code=500, detail=f"Error al actualizar usuario: {err}")
