@@ -59,6 +59,15 @@ const CarnetAprendiz = () => {
             <p className="document">C.C. {usuarioInfo.Numero_Identificacion}</p>
             <p className="rh">RH: {usuarioInfo.RH}</p>
              <div className="linea-separador2"></div>
+            
+            <div className="qr-section">
+            {imageDataQR ? (
+              <img src={imageDataQR} alt="QR usuario" className="qr-code" />
+            ) : (
+              <p>Cargando QR...</p>
+            )}
+            </div>
+            
             <p className="regional">Regional Distrito Capital</p>
             <p className="centro">
               Centro de Gestión de Mercados logística y <br />
@@ -71,15 +80,6 @@ const CarnetAprendiz = () => {
           <p className="paragraph">
            Este carnet es personal e intransferible; identifica al portador como aprendiz del Servicio Nacional de Aprendizaje SENA. El SENA es una entidad que imparte formación técnica profesional y tecnológica que forma parte de la Educación Superior. Se solicita a las autoridades públicas, civiles y militares prestarle al portador toda la colaboración para la realización de sus actividades de aprendizaje. Por disposición de las leyes 418 de 1997, 548 de 1991, 642 de 2001 y 1106 de 2006, los menores de 18 años y estudiantes de Educación Superior no serán incorporados al servicio militar.
           </p>
-            
-
-            <div className="qr-section">
-            {imageDataQR ? (
-              <img src={imageDataQR} alt="QR usuario" className="qr-code" />
-            ) : (
-              <p>Cargando QR...</p>
-            )}
-          </div>
           
           <div className="info-row">
             <span className="info-label">Ficha:</span>

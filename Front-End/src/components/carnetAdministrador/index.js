@@ -6,6 +6,7 @@ import Forms from '../typesCarnets/Formulario';
 import CrearCarnet from '../typesCarnets/Crear_Carnet';
 import EliminarCarnet from '../typesCarnets/Eliminar_Carnet';
 import EliminarUsuario from '../typesCarnets/Eliminar_Usuario';
+import ActulizarUsuario from '../typesCarnets/ActualizaUsuario/listaUsuario';
 
 
 const MenuColumna = () => {
@@ -24,7 +25,7 @@ const MenuColumna = () => {
         id: 'Actualizar-Usuario',
         title: "ACTUALIZAR-USUARIO", 
         subtitle: "Actualizar Carnet para un usuario", 
-        component: <Forms/>
+        component: <ActulizarUsuario/>
     },
 
      { 

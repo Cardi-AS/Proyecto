@@ -83,3 +83,6 @@ def get_carnet_by_qr(qr_code: str):
             
     except mysql.connector.Error as err:
         raise HTTPException(status_code=500, detail=f"Error al buscar carnet: {err}")
+    
+    
+    

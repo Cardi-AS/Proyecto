@@ -143,3 +143,29 @@ def obtener_historial_ingresos(id_carnet: int, limit: int = 10):
         
     except mysql.connector.Error as err:
         raise HTTPException(status_code=500, detail=f"Error al consultar historial: {err}")
+    
+    
+    
+@salidaRouter.delete("/reset-ingresos", status_code=status.HTTP_200_OK)
+def resetear_ingresos():
+    try:
+        # Desactivar claves foráneas y modo seguro
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+        cursor.execute("SET SQL_SAFE_UPDATES = 0;")
+
+        # Eliminar todos los registros
+        cursor.execute("DELETE FROM ingresosedes WHERE Id_Ingreso > 0;")
+
+        # Reiniciar el contador AUTO_INCREMENT
+        cursor.execute("ALTER TABLE ingresosedes AUTO_INCREMENT = 1;")
+
+        # Restaurar configuraciones
+        cursor.execute("SET SQL_SAFE_UPDATES = 1;")
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+
+        mydb.commit()
+        return {"message": "Tabla ingresosedes reiniciada correctamente"}
+
+    except mysql.connector.Error as err:
+        mydb.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al reiniciar la tabla: {err}")    

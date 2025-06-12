@@ -6,9 +6,9 @@ import time
 qrCode = cv2.QRCodeDetector()
 cap = cv2.VideoCapture(0)
 
-# URL base de tu API
-BASE_URL = "http://localhost:8000"  # Cambia si es necesario
-ID_SEDE = 1  # Sede asignada
+# URL base de datos 
+BASE_URL = "http://localhost:8000"  
+ID_SEDE = 1  
 
 if not cap.isOpened():
     print("No se puede abrir la cámara")
@@ -41,12 +41,12 @@ while True:
                                 # Obtener el Id_Carnet desde el Fk_Id_Usuario
                                 carnet_response = requests.get(f"{BASE_URL}/carnet/{fk_id_usuario}")
                                 if carnet_response.status_code != 200:
-                                    print(f"❌ No se encontró carnet para el usuario {fk_id_usuario}")
+                                    print(f"No se encontró carnet para el usuario {fk_id_usuario}")
                                     continue
 
                                 datos_carnet = carnet_response.json()
                                 if not datos_carnet:
-                                    print(f"❌ El usuario {fk_id_usuario} no tiene carnet registrado")
+                                    print(f"El usuario {fk_id_usuario} no tiene carnet registrado")
                                     continue
 
                                 id_carnet = datos_carnet[0][0]  # Primer campo: Id_Carnet
@@ -56,7 +56,7 @@ while True:
                                 resultado = response.json()
 
                                 if resultado.get("status") == "salida_registrada":
-                                    print("✅ Salida registrada:", resultado)
+                                    print("Salida registrada:", resultado)
                                 elif resultado.get("status") == "no_active_ingreso":
                                     # Registrar ingreso
                                     payload = {
@@ -65,16 +65,16 @@ while True:
                                     }
                                     ingreso_response = requests.post(f"{BASE_URL}/ingreso-sede", json=payload)
                                     if ingreso_response.status_code == 201:
-                                        print("✅ Ingreso registrado:", ingreso_response.json())
+                                        print("Ingreso registrado:", ingreso_response.json())
                                     else:
-                                        print("❌ Error al registrar ingreso:", ingreso_response.text)
+                                        print("Error al registrar ingreso:", ingreso_response.text)
                                 else:
-                                    print("❌ Respuesta inesperada:", resultado)
+                                    print("Respuesta inesperada:", resultado)
 
                             except Exception as e:
-                                print("❌ Error procesando el QR:", e)
+                                print("Error procesando el QR:", e)
                         else:
-                            print("⚠️ QR no válido")
+                            print("QR no válido")
                 else:
                     color = (0, 0, 255)
                     frame = cv2.polylines(frame, [point.astype(int)], True, color, 4)

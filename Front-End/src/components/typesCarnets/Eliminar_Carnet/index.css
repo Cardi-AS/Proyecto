@@ -12,3 +12,129 @@
 .logout-container2 {
     text-align: center;
 }
+/* Botón de cancelar */
+.btn-Cancel {
+    background: linear-gradient(135deg, #373a3d 0%, #373a3d 100%);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+
+
+/* Botón de eliminar */
+.btn-Delete {
+    background: linear-gradient(135deg, #39A900 0%, #39A900 100%);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+
+}
+
+/* Contenedores de botones */
+.logout-container, .logout-container2 {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.confirmation-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 25px 0;
+    padding: 0 20px;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .carnet-container {
+        padding: 10px;
+    }
+    
+    .carnet-card {
+        margin: 10px;
+        max-width: 100%;
+    }
+    
+    .carnet-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .carnet-body {
+        padding: 20px;
+    }
+    
+    .confirmation-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-Cancel, .btn-Delete {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .carnet-header {
+        padding: 20px;
+    }
+    
+    .carnet-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    .carnet-body {
+        padding: 15px;
+    }
+    
+    .form-control {
+        padding: 10px 12px;
+    }
+    
+    .btn-Exit, .btn-Cancel, .btn-Delete {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Animaciones adicionales */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.btn-Exit:focus, .btn-Cancel:focus, .btn-Delete:focus {
+    animation: pulse 0.3s ease-in-out;
+    outline: none;
+}
+
+/* Efectos de carga */
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
